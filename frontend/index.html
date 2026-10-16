@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Exam</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+#review {
+    margin-top: 25px;
+    text-align: left;
+}
+
+.review-item {
+    padding: 18px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    background: #0b1629;
+    border: 1px solid #263b5c;
+}
+
+.review-item.correct {
+    border-color: #22c55e;
+}
+
+.review-item.wrong {
+    border-color: #ef4444;
+}
+
+.review-question {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #0b1220;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 750px;
+            background: #111c30;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #9caecb;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border: 1px solid #263957;
+            background: #0b1527;
+            color: white;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .status {
+            margin-top: 18px;
+            text-align: center;
+            color: #60a5fa;
+        }
+
+        #exam {
+            display: none;
+        }
+
+        .progress {
+            color: #60a5fa;
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+
+        .question {
+            font-size: 22px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .option {
+            background: #0b1527;
+            border: 1px solid #263957;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .option:hover {
+            border-color: #2563eb;
+            background: #142342;
+        }
+
+        .option.selected {
+            border-color: #2563eb;
+            background: #1e3a8a;
+        }
+
+        .next-btn {
+            margin-top: 15px;
+        }
+
+        #result {
+            display: none;
+            text-align: center;
+        }
+
+        .score {
+            font-size: 56px;
+            font-weight: bold;
+            margin: 25px 0;
+            color: #60a5fa;
+        }
+
+        .result-text {
+            font-size: 20px;
+            color: #cbd5e1;
+            margin-bottom: 25px;
+        }
+
+        .restart {
+            background: #334155;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- START -->
+    <div id="start">
+
+        <div class="logo">
+            AI EXAM
+        </div>
+
+        <div class="subtitle">
+            Sun’iy intellekt asosidagi imtihon platformasi
+        </div>
+
+        <label for="subject">Fan</label>
+
+        <select id="subject">
+            <option value="Kiberxavfsizlik">Kiberxavfsizlik</option>
+            <option value="Dasturlash">Dasturlash</option>
+            <option value="Kompyuter tarmoqlari">
+                Kompyuter tarmoqlari
+            </option>
+            <option value="Axborot texnologiyalari">
+                Axborot texnologiyalari
+            </option>
+        </select>
+
+        <label for="topic">Mavzu</label>
+
+        <input
+            id="topic"
+            type="text"
+            placeholder="Masalan: Kibergigiyena"
+        >
+
+        <label for="count">Savollar soni</label>
+
+        <input
+            id="count"
+            type="number"
+            value="5"
+            min="1"
+            max="5"
+        >
+
+        <button onclick="startExam()">
+            IMTIHONNI BOSHLASH
+        </button>
+
+        <div id="status" class="status"></div>
+
+    </div>
+
+
+    <!-- EXAM -->
+    <div id="exam">
+
+        <div class="logo">
+            AI EXAM
+        </div>
+
+        <div class="progress" id="progress">
+            1 / 5
+        </div>
+
+<div class="timer" id="timer">
+    10:00
+</div>
+
+        <div class="question" id="question">
+            Savol yuklanmoqda...
+        </div>
+
+        <div id="options"></div>
+
+        <button class="next-btn" onclick="nextQuestion()">
+            KEYINGI
+        </button>
+
+    </div>
+
+
+    <!-- RESULT -->
+    <div id="result">
+
+<div id="review"></div>
+
+        <div class="logo">
+            IMTIHON YAKUNLANDI
+        </div>
+
+        <div class="score" id="score">
+            0 / 5
+        </div>
+
+        <div class="result-text" id="resultText">
+            Natija
+        </div>
+
+        <button class="restart" onclick="location.reload()">
+            QAYTA TOPSHIRISH
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let questions = [];
+let currentQuestion = 0;
+let userAnswers = [];
+
+let timeLeft = 10 * 60;
+let timerInterval = null;
+
+function startTimer() {
+    clearInterval(timerInterval);
+
+    timeLeft = 10 * 60;
+    updateTimer();
+
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimer();
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            alert("Vaqt tugadi! Imtihon yakunlandi.");
+            finishExam();
+        }
+    }, 1000);
+}
+
+function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+
+    document.getElementById("timer").innerText =
+        `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+
+
+
+async function startExam() {
+
+    const subject =
+        document.getElementById("subject").value;
+
+    const topic =
+        document.getElementById("topic").value;
+
+    const count =
+        Number(document.getElementById("count").value);
+
+    const status =
+        document.getElementById("status");
+
+
+    if (!topic.trim()) {
+
+        status.innerText =
+            "Iltimos, mavzuni kiriting.";
+
+        return;
+    }
+
+
+    status.innerText =
+        "Savollar tayyorlanmoqda...";
+
+
+    try {
+
+        const response = await fetch(
+            "http://127.0.0.1:8000/generate",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    subject: subject,
+                    topic: topic,
+                    count: count
+                })
+            }
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Server xatosi: " + response.status
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+
+        questions =
+            data.questions;
+startTimer();
+
+
+        userAnswers =
+            new Array(questions.length).fill(null);
+
+        currentQuestion = 0;
+
+
+        document.getElementById("start").style.display =
+            "none";
+
+        document.getElementById("exam").style.display =
+            "block";
+
+
+        showQuestion();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        status.innerText =
+            "Server bilan bog‘lanishda xatolik yuz berdi.";
+
+    }
+
+}
+
+
+function showQuestion() {
+
+    const q =
+        questions[currentQuestion];
+
+
+    document.getElementById("progress").innerText =
+        `${currentQuestion + 1} / ${questions.length}`;
+
+
+    document.getElementById("question").innerText =
+        q.question;
+
+
+    const options =
+        document.getElementById("options");
+
+    options.innerHTML = "";
+
+
+    q.options.forEach((option, index) => {
+
+        const div =
+            document.createElement("div");
+
+
+        div.className = "option";
+
+        div.innerText =
+            `${String.fromCharCode(65 + index)}) ${option}`;
+
+
+        div.onclick = function() {
+
+            selectOption(index);
+
+        };
+
+
+        if (userAnswers[currentQuestion] === index) {
+
+            div.classList.add("selected");
+
+        }
+
+
+        options.appendChild(div);
+
+    });
+
+
+    const nextButton =
+        document.querySelector(".next-btn");
+
+
+    if (currentQuestion === questions.length - 1) {
+
+        nextButton.innerText =
+            "YAKUNLASH";
+
+    } else {
+
+        nextButton.innerText =
+            "KEYINGI";
+
+    }
+
+}
+
+
+function selectOption(index) {
+
+    userAnswers[currentQuestion] =
+        index;
+
+
+    const allOptions =
+        document.querySelectorAll(".option");
+
+
+    allOptions.forEach((option, i) => {
+
+        option.classList.remove("selected");
+
+        if (i === index) {
+
+            option.classList.add("selected");
+
+        }
+
+    });
+
+}
+
+
+function nextQuestion() {
+
+    if (userAnswers[currentQuestion] === null) {
+
+        alert("Iltimos, javob variantini tanlang.");
+
+        return;
+    }
+
+
+    if (currentQuestion <
+        questions.length - 1) {
+
+        currentQuestion++;
+
+        showQuestion();
+
+    } else {
+
+        finishExam();
+
+    }
+
+}
+
+
+function finishExam() {
+
+    let score = 0;
+
+
+    questions.forEach((q, index) => {
+
+        if (userAnswers[index] === q.correct) {
+
+            score++;
+
+        }
+
+    });
+
+
+    document.getElementById("exam").style.display =
+        "none";
+
+    document.getElementById("result").style.display =
+        "block";
+
+
+    document.getElementById("score").innerText =
+        `${score} / ${questions.length}`;
+
+
+    const percentage =
+        Math.round(
+            (score / questions.length) * 100
+        );
+
+
+    let text;
+
+
+    if (percentage >= 90) {
+
+        text = "A’lo natija!";
+
+    } else if (percentage >= 70) {
+
+        text = "Yaxshi natija!";
+
+    } else if (percentage >= 60) {
+
+        text = "Qoniqarli natija.";
+
+    } else {
+
+        text = "Mavzuni yana bir bor o‘rganish tavsiya etiladi.";
+
+    }
+
+
+    document.getElementById("resultText").innerText =
+        `${percentage}% — ${text}`;
+const examResult = {
+
+    date: new Date().toLocaleString(),
+    subject: document.getElementById("subject").value,
+    topic: document.getElementById("topic").value,
+    score: score,
+    total: questions.length,
+    percentage: percentage
+};
+
+const history =
+    JSON.parse(localStorage.getItem("examHistory")) || [];
+
+history.push(examResult);
+
+localStorage.setItem(
+    "examHistory",
+    JSON.stringify(history)
+);
+const review = document.getElementById("review");
+
+review.innerHTML = "";
+
+questions.forEach((q, index) => {
+
+    const item = document.createElement("div");
+
+    const selected = userAnswers[index];
+
+    const isCorrect = selected === q.correct;
+
+    item.className = isCorrect
+        ? "review-item correct"
+        : "review-item wrong";
+
+    item.innerHTML = `
+        <div class="review-question">
+            ${index + 1}. ${q.question}
+        </div>
+
+        <div>
+            ${isCorrect ? "✅ To‘g‘ri" : "❌ Noto‘g‘ri"}
+        </div>
+
+        <div>
+            Sizning javobingiz:
+            ${selected !== null ? q.options[selected] : "Javob tanlanmagan"}
+        </div>
+
+        <div>
+            To‘g‘ri javob:
+            ${q.options[q.correct]}
+        </div>
+    `;
+
+    review.appendChild(item);
+});
+
+}
+
+</script>
+<script src="app.js"></script>
+</body>
+</html>
